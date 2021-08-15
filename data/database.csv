@@ -1,0 +1,33 @@
+RT,Compound,nC,Classification
+4.053,Pentane,5,alkane
+4.528,Hexane,6,alkane
+5.723,Heptane,7,alkane
+8.115,Octane,8,alkane
+10.936,Nonane,9,alkane
+13.488,Decane,10,alkane
+13.803,Acetic acid,2,fatty acid
+15.643,Propanoic acid,3,fatty acid
+15.728,Undecane,11,alkane
+17.205,Butanoic acid,4,fatty acid
+17.725,Dodecane,12,alkane
+18.776,Pentanoic acid,5,fatty acid
+19.533,Tridecane,13,alkane
+20.440,Hexanoic acid,6,fatty acid
+21.248,Tetradecane,14,alkane
+21.864,Heptanoic acid,7,fatty acid
+22.851,Pentadecane,15,alkane
+23.347,Octanoic acid,8,fatty acid
+24.376,Hexadecane,16,alkane
+24.811,Nonanoic acid,9,fatty acid
+25.984,Heptadecane,17,alkane
+26.603,Decanoic acid,10,fatty acid
+28.309,Undecanoic acid,11,fatty acid
+29.835,Dodecanoic acid,12,fatty acid
+30.968,Tridecanoic acid,13,fatty acid
+32.075,Tetradecanoic acid,14,fatty acid
+33.107,Pentadecanoic acid,15,fatty acid
+34.357,Hexadecanoic acid,16,fatty acid
+34.973,Internal standard,19,IS
+36.677,Heptadecanoic acid,17,fatty acid
+37.920,Stearic acid,18,fatty acid
+38.213,Oleic acid,18:1,fatty acid

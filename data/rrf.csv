@@ -1,0 +1,33 @@
+nC,Classification,RRF
+5,alkane,1.10
+6,alkane,1.15
+7,alkane,1.23
+8,alkane,1.26
+9,alkane,1.29
+10,alkane,1.31
+11,alkane,1.30
+12,alkane,1.29
+13,alkane,1.27
+14,alkane,1.26
+15,alkane,1.23
+16,alkane,1.22
+17,alkane,1.23
+2,fatty acid,0.39
+3,fatty acid,0.43
+4,fatty acid,0.54
+5,fatty acid,0.58
+6,fatty acid,0.65
+7,fatty acid,0.68
+8,fatty acid,0.72
+9,fatty acid,0.73
+10,fatty acid,0.79
+11,fatty acid,0.82
+12,fatty acid,0.85
+13,fatty acid,0.86
+14,fatty acid,0.89
+15,fatty acid,0.87
+16,fatty acid,0.86
+17,fatty acid,0.86
+18,fatty acid,0.86
+18:1,fatty acid,0.81
+19,internal standard,1.00
