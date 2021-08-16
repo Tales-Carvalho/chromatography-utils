@@ -1,33 +1,33 @@
 RT,Compound,nC,Classification,RRF
-4.053,Pentane,5,alkane,1.1
-4.528,Hexane,6,alkane,1.15
-5.723,Heptane,7,alkane,1.23
-8.115,Octane,8,alkane,1.26
-10.936,Nonane,9,alkane,1.29
-13.488,Decane,10,alkane,1.31
-15.728,Undecane,11,alkane,1.3
-17.725,Dodecane,12,alkane,1.29
-19.533,Tridecane,13,alkane,1.27
-21.248,Tetradecane,14,alkane,1.26
-22.851,Pentadecane,15,alkane,1.23
-24.376,Hexadecane,16,alkane,1.22
-25.984,Heptadecane,17,alkane,1.23
-13.803,Acetic acid,2,fatty acid,0.39
-15.643,Propanoic acid,3,fatty acid,0.43
-17.205,Butanoic acid,4,fatty acid,0.54
-18.776,Pentanoic acid,5,fatty acid,0.58
-20.44,Hexanoic acid,6,fatty acid,0.65
-21.864,Heptanoic acid,7,fatty acid,0.68
-23.347,Octanoic acid,8,fatty acid,0.72
-24.811,Nonanoic acid,9,fatty acid,0.73
-26.603,Decanoic acid,10,fatty acid,0.79
-28.309,Undecanoic acid,11,fatty acid,0.82
-29.835,Dodecanoic acid,12,fatty acid,0.85
-30.968,Tridecanoic acid,13,fatty acid,0.86
-32.075,Tetradecanoic acid,14,fatty acid,0.89
-33.107,Pentadecanoic acid,15,fatty acid,0.87
-34.357,Hexadecanoic acid,16,fatty acid,0.86
-36.677,Heptadecanoic acid,17,fatty acid,0.86
-37.92,Stearic acid,18,fatty acid,0.86
-38.213,Oleic acid,18:1,fatty acid,0.81
-34.973,Internal standard,19,internal standard,1.0
+4.053,Pentane,5,alkane,1.10003
+4.528,Hexane,6,alkane,1.14870
+5.723,Heptane,7,alkane,1.23398
+8.115,Octane,8,alkane,1.26461
+10.936,Nonane,9,alkane,1.28802
+13.488,Decane,10,alkane,1.30953
+15.728,Undecane,11,alkane,1.29561
+17.725,Dodecane,12,alkane,1.28877
+19.533,Tridecane,13,alkane,1.26670
+21.248,Tetradecane,14,alkane,1.25694
+22.851,Pentadecane,15,alkane,1.23444
+24.376,Hexadecane,16,alkane,1.22395
+25.984,Heptadecane,17,alkane,1.22908
+13.803,Acetic acid,2,fatty acid,0.38580
+15.643,Propanoic acid,3,fatty acid,0.43352
+17.205,Butanoic acid,4,fatty acid,0.54350
+18.776,Pentanoic acid,5,fatty acid,0.57870
+20.44,Hexanoic acid,6,fatty acid,0.65418
+21.864,Heptanoic acid,7,fatty acid,0.68030
+23.347,Octanoic acid,8,fatty acid,0.71553
+24.811,Nonanoic acid,9,fatty acid,0.73316
+26.603,Decanoic acid,10,fatty acid,0.79249
+28.309,Undecanoic acid,11,fatty acid,0.81870
+29.835,Dodecanoic acid,12,fatty acid,0.84906
+30.968,Tridecanoic acid,13,fatty acid,0.85550
+32.075,Tetradecanoic acid,14,fatty acid,0.88673
+33.107,Pentadecanoic acid,15,fatty acid,0.87070
+34.357,Hexadecanoic acid,16,fatty acid,0.86371
+36.677,Heptadecanoic acid,17,fatty acid,0.86430
+37.92,Stearic acid,18,fatty acid,0.85776
+38.213,Oleic acid,18:1,fatty acid,0.81000
+34.973,Internal standard,19,internal standard,1.00000
