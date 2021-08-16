@@ -7,34 +7,34 @@ if __name__ == '__main__':
   if not os.path.exists('data/database.csv'):
     print('data/database.csv not found. Exiting.')
     exit(1)
-  dbDf = pd.read_csv('data/database.csv')
-
-  if not os.path.exists('data/rrf.csv'):
-    print('data/rrf.csv not found. Exiting.')
-    exit(1)
-  rrfDf = pd.read_csv('data/rrf.csv')
-
-  mergedDf = pd.merge(dbDf, rrfDf, 'inner', ['nC', 'Classification']).sort_values(by=['RT'])
-  mergedDf.to_csv('merged.csv')
+  database = pd.read_csv('data/database.csv')
 
   inputFiles = glob.glob('input/*.csv')
   print(f'Found {len(inputFiles)} input files:')
-  [print(f'\t* {os.path.basename(f)}') for f in inputFiles]
+  for f in inputFiles:
+    print(f'\t* {os.path.basename(f)}')
 
   for f in inputFiles:
     print(f'Processing {os.path.basename(f)}...')
-    df = pd.read_csv(f)
+    fileDf = pd.read_csv(f).sort_values(by=['RT'])
 
-    # TODO: filter df with local maxima, and process with merge_asof in filtered df
+    inputDf = fileDf.copy()
+    resultsDf = pd.DataFrame()
 
-    outDf = pd.merge_asof(
-      mergedDf[['RT', 'nC', 'Classification', 'Compound', 'RRF']].rename(columns={'RT': 'RT_db'}),
-      df,
-      left_on='RT_db',
-      right_on='RT',
-      direction='nearest').drop('RT_db', axis=1)
+    for index, dbRow in database.iterrows():  
+      # Select only local Area peaks from inputDf
+      filteredDf = inputDf[
+        (inputDf.shift(1, fill_value=0)['Area'] < inputDf['Area']) &
+        (inputDf.shift(-1, fill_value=0)['Area'] < inputDf['Area'])
+      ]
+      # Find closest row in filteredDf to dbRow['RT']
+      rowResult = filteredDf.iloc[(filteredDf['RT']-dbRow['RT']).abs().argsort()[:1]]
+      resultsDf = resultsDf.append(
+        pd.concat([dbRow.drop(['RT']), rowResult.squeeze()]), ignore_index=True
+      )
+      # Filter out found compounds in inputDf
+      inputDf = inputDf[(inputDf['RT'].isin(resultsDf['RT']) == False)]
 
-    outDf = pd.merge(df, outDf, 'outer', ['RT', 'Height', 'Area']).sort_values(by=['RT'])
-
-    outDf.to_csv(f'output/{os.path.basename(f)}', index=False)
+    resultsDf = pd.merge(fileDf, resultsDf, 'outer', ['RT', 'Height', 'Area']).sort_values(by=['RT'])
+    resultsDf.to_csv(f'output/{os.path.basename(f)}', index=False)
     print(f'File saved to output/{os.path.basename(f)}')
