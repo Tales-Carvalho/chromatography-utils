@@ -3,13 +3,11 @@
 ## Installation
 
 ```bash
-python -m venv env
-source env/bin/activate
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ## Usage
 
 ```bash
-python main.py
+python3 main.py
 ```
