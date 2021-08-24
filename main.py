@@ -29,12 +29,12 @@ def entrypoint():
   experiments = sorted([p.split('/')[1] for p in glob.glob('input/*/')])  
   if len(experiments) == 0:
     raise Exception('No experiment found in input folder.')
-  print(f'Found {len(experiments)} experiment folders: {"; ".join(experiments)}\n')
+  print(f'Found {len(experiments)} experiment folders: {"; ".join(experiments)}')
 
   for experiment in experiments:
     # Find all csv files in experiment directory
     inputFiles = sorted(glob.glob(f'input/{experiment}/*.csv'))
-    print(f'Found {len(inputFiles)} input files for experiment {experiment}.\n')
+    print(f'\nFound {len(inputFiles)} input files for experiment {experiment}.\n')
 
     summaryDf = pd.DataFrame()
 
@@ -114,19 +114,17 @@ def entrypoint():
       resultsDf['Mass'] = resultsDf['NormalizedArea'] * isMass / isArea
 
       # Summary
-      thisSummaryDf = resultsDf.groupby('Classification')[['NormalizedArea', 'Mass']].sum()
+      thisSummaryDf = resultsDf.groupby('Classification')[['Mass']].sum()
       thisSummaryDf = thisSummaryDf.append(pd.Series(data={
         'Mass': sampleMass - resultsDf[['Mass']].sum().squeeze() + isMass
       }, name='unaccounted'))
       thisSummaryDf = thisSummaryDf.append(pd.Series(data={
-        'NormalizedArea': resultsDf[['NormalizedArea']].sum().squeeze(),
         'Mass': sampleMass
       }, name='sample'))
 
       # Identify this summary section
       thisSummaryDf = thisSummaryDf.rename(columns={
-        'Mass': f'Mass_{num+1}',
-        'NormalizedArea': f'Area_{num+1}'
+        'Mass': f'Mass_{num+1}'
       })
 
       # Merge this summary with other triplicates
@@ -138,7 +136,7 @@ def entrypoint():
       )
 
     summaryDf.to_csv(f'output/{experiment}_summary.csv')
-    print(f'Summary saved to output/{experiment}_summary.csv\n')
+    print(f'Summary saved to output/{experiment}_summary.csv')
 
 
 if __name__ == '__main__':
