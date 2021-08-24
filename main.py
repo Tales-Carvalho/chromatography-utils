@@ -148,7 +148,7 @@ if __name__ == '__main__':
   print(f'Project: {PROJECT["name"]} v{PROJECT["version"]}')
   print(f'Description: {PROJECT["description"]}')
   print(f'Authors: {"; ".join(PROJECT["authors"])}')
-  print(f'For more information, read {PROJECT["readme"]} file.\n')
+  print(f'For more information, read {PROJECT["readme"]} file.')
 
   print('\n===== Program Start =====\n')
   try:
