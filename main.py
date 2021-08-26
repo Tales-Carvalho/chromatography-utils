@@ -34,6 +34,9 @@ def entrypoint():
   for experiment in experiments:
     # Find all csv files in experiment directory
     inputFiles = sorted(glob.glob(f'input/{experiment}/*.csv'))
+    if os.path.exists(f'output/{experiment}_summary.csv'):
+      print(f'\nOutput for {experiment} already exists. Skipping.')
+      continue
     print(f'\nFound {len(inputFiles)} input files for experiment {experiment}.\n')
 
     summaryDf = pd.DataFrame()
