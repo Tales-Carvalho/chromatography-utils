@@ -76,6 +76,13 @@ def entrypoint():
         # Filter out found compounds in inputDf
         inputDf = inputDf[(inputDf[TIME_COLUMN].isin(resultsDf[TIME_COLUMN]) == False)]
 
+      # TODO: prompt user for experiment type (gas/liquid -> continue the program as-is)
+
+      # TODO: for gas -> Volume = Area / Response Factor
+      #                  Volume in sample = Volume * Volume of sample / 5
+      #                  Mass in sample = Volume in sample * Density
+      # TODO: for gas, prompt volume of sample and mass of sample
+
       # Get area of internal standard from previous resultsDf
       isArea = resultsDf.loc[resultsDf['Classification'] == 'internal standard', 'Area'].squeeze()
 
