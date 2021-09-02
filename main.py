@@ -74,11 +74,6 @@ def gas_analysis(experiment):
       )
       # Filter out found compounds in tcdDatabase
       tcdDatabase = tcdDatabase[(tcdDatabase[TIME_COLUMN].isin(tcdResultsDf[TIME_COLUMN]) == False)]
-    
-    # Save csv table in output folder, using the input directory template
-    os.makedirs(f'output/{experiment}/', exist_ok=True)
-    tcdResultsDf.to_csv(f'output/{experiment}/{os.path.basename(tcdFileName)}', index=False)
-    print(f'File saved to output/{experiment}/{os.path.basename(tcdFileName)}\n')
 
     # FID data file
     print('Avaliable files:')
@@ -120,11 +115,62 @@ def gas_analysis(experiment):
         pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])]), ignore_index=True
       )
     
-    # Save csv table in output folder, using the input directory template
-    fidResultsDf.to_csv(f'output/{experiment}/{os.path.basename(fidFileName)}', index=False)
-    print(f'File saved to output/{experiment}/{os.path.basename(fidFileName)}\n')
+    # Get from the user: mass of sample and volume of sample
+    while True:
+      try:
+        sampleMass = float(input('Mass of sample [g]: '))
+        assert sampleMass > 0
+        break
+      except (ValueError, AssertionError):
+        print('Error: invalid value. Try again.')
+    while True:
+      try:
+        sampleVol = float(input('Volume of sample [mL]: ')) # TODO: mL?
+        assert sampleVol > 0
+        break
+      except (ValueError, AssertionError):
+        print('Error: invalid value. Try again.')
 
-    # TODO: summary of analysis
+    fidResultsDf['Volume'] = fidResultsDf['Area'] / fidResultsDf['Response Factor']
+    fidResultsDf['Volume in Sample'] = fidResultsDf['Volume'] * sampleVol / 5
+    fidResultsDf['Mass'] = fidResultsDf['Volume in Sample'] * fidResultsDf['Density']
+
+    tcdResultsDf['Volume'] = tcdResultsDf['Area'] / tcdResultsDf['Response Factor']
+    tcdResultsDf['Volume in Sample'] = tcdResultsDf['Volume'] * sampleVol / 5
+    tcdResultsDf['Mass'] = tcdResultsDf['Volume in Sample'] * tcdResultsDf['Density']
+
+    # Save csv table in output folder, using the input directory template
+    os.makedirs(f'output/{experiment}/', exist_ok=True)
+    tcdResultsDf.to_csv(f'output/{experiment}/{os.path.basename(tcdFileName)}', index=False)
+    fidResultsDf.to_csv(f'output/{experiment}/{os.path.basename(fidFileName)}', index=False)
+    print(f'File saved to output/{experiment}/{os.path.basename(tcdFileName)}')
+    print(f'File saved to output/{experiment}/{os.path.basename(fidFileName)}')
+
+    # Merge results to a single table
+    thisSummaryDf = pd.merge(
+      fidResultsDf.groupby('Classification')[['Mass']].sum(),
+      tcdResultsDf.groupby('Classification')[['Mass']].sum(),
+      'outer',
+      ['Classification', 'Mass']
+    )
+
+    # Append unaccounted row 
+    thisSummaryDf = thisSummaryDf.append(pd.Series(data={
+      'Mass': sampleMass - thisSummaryDf[['Mass']].sum().squeeze()
+    }, name='Unaccounted'))
+
+    # Identify this summary section
+    thisSummaryDf = thisSummaryDf.rename(columns={
+      'Mass': f'Mass_{num+1}'
+    })
+
+    # Merge this summary with other triplicates
+    summaryDf = thisSummaryDf if summaryDf.empty else pd.merge(
+      summaryDf,
+      thisSummaryDf,
+      'outer',
+      'Classification'
+    )
 
   summaryDf.to_csv(f'output/{experiment}_summary.csv')
   print(f'Summary saved to output/{experiment}_summary.csv')
