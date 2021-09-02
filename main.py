@@ -29,121 +29,110 @@ def gas_analysis(experiment):
   if len(fidDatabases) == 0:
     raise Exception('No database found in data/fid folder.')
 
-  for num, file in enumerate(inputFiles):
-    print(f'Processing {os.path.basename(file)}...')
-    fileDf = pd.read_csv(file).sort_values(by=[TIME_COLUMN])
+  for num in range(3):
 
-    # Internal variables for processing
-    inputDf = fileDf.copy()
-    resultsDf = pd.DataFrame()
-
-    print('\nAvailable type of anaylsis: (1) FID, (2) TCD.')
+    # TCD data file
+    print('Avaliable files:')
+    print('; '.join(
+      [f'[{i+1}] {os.path.basename(f)}' for i, f in enumerate(inputFiles)]
+    ))
     while True:
       try:
-        typeNum = int(input('Analysis type number: '))
-        assert typeNum == 1 or typeNum == 2
+        fileNum = int(input(f'Select file for TCD analysis of sample {num+1} of {experiment}: '))
+        assert fileNum > 0 and fileNum <= len(inputFiles)
         break
       except (ValueError, AssertionError):
-        print('Error: invalid value. Try again.')
-
-    if typeNum == 1:
-      databases = fidDatabases
-    else:
-      databases = tcdDatabases
+        print('Error: invalid file number. Try again.')
+    
+    # Internal variables for processing
+    tcdFileDf = pd.read_csv(inputFiles[fileNum-1]).sort_values(by=[TIME_COLUMN])
+    tcdInputDf = tcdFileDf.copy()
+    tcdResultsDf = pd.DataFrame()
 
     # Database choice
     print('Available databases:')
-    print("; ".join(
-      [f'[{i+1}] {os.path.basename(database)}' for i, database in enumerate(databases)]
+    print('; '.join(
+      [f'[{i+1}] {os.path.basename(database)}' for i, database in enumerate(tcdDatabases)]
     ))
     try:
       databaseNum = int(input('Database number (default=1): '))
-      assert databaseNum > 0 and databaseNum <= len(databases)
+      assert databaseNum > 0 and databaseNum <= len(tcdDatabases)
     except (ValueError, AssertionError):
-      print(f'Warning: invalid number, [1] {os.path.basename(databases[0])} will be used.')
+      print(f'Warning: invalid number, [1] {os.path.basename(tcdDatabases[0])} will be used.')
       databaseNum = 1
+    tcdDatabase = pd.read_csv(tcdDatabases[databaseNum-1])
 
-    database = pd.read_csv(databases[databaseNum-1])
-    for _, dbRow in database.iterrows():  
-      # Select only local Area peaks from inputDf
-      filteredDf = inputDf[
-        (inputDf.shift(1, fill_value=0)[PEAK_COLUMN] < inputDf[PEAK_COLUMN]) &
-        (inputDf.shift(-1, fill_value=0)[PEAK_COLUMN] < inputDf[PEAK_COLUMN])
-      ]
-      # Find closest row in filteredDf to dbRow[TIME_COLUMN]
-      rowResult = filteredDf.iloc[(filteredDf[TIME_COLUMN]-dbRow[TIME_COLUMN]).abs().argsort()[:1]]
-      resultsDf = resultsDf.append(
-        pd.concat([dbRow.drop([TIME_COLUMN]), rowResult.squeeze()]), ignore_index=True
+    # TCD Analysis
+    for _, inputRow in tcdInputDf.iterrows():
+      # Find closest row in tcdInputDf to dbRow[TIME_COLUMN]
+      rowResult = tcdDatabase.iloc[(tcdDatabase[TIME_COLUMN]-inputRow[TIME_COLUMN]).abs().argsort()[:1]]
+      tcdResultsDf = tcdResultsDf.append(
+        pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])]), ignore_index=True
       )
-      # Filter out found compounds in inputDf
-      inputDf = inputDf[(inputDf[TIME_COLUMN].isin(resultsDf[TIME_COLUMN]) == False)]
-
-    # TODO: for gas -> Volume = Area / Response Factor
-    #                  Volume in sample = Volume * Volume of sample / 5
-    #                  Mass in sample = Volume in sample * Density
-    # TODO: for gas, prompt volume of sample and mass of sample
-
-    # Get area of internal standard from previous resultsDf
-    isArea = resultsDf.loc[resultsDf['Classification'] == 'internal standard', 'Area'].squeeze()
-
-    # Get from the user: mass of internal standard and mass of sample
-    while True:
-      try:
-        sampleMass = float(input('Mass of sample [g]: '))
-        assert sampleMass > 0
-        break
-      except (ValueError, AssertionError):
-        print('Error: invalid value. Try again.')
-    while True:
-      try:
-        isMass = float(input('Mass of Internal Standard [g]: '))
-        assert isMass > 0
-        break
-      except (ValueError, AssertionError):
-        print('Error: invalid value. Try again.')
+      # Filter out found compounds in tcdDatabase
+      tcdDatabase = tcdDatabase[(tcdDatabase[TIME_COLUMN].isin(tcdResultsDf[TIME_COLUMN]) == False)]
 
     # Merge results with input file, so unclassified compounds are still present in output
-    resultsDf = pd.merge(
-      fileDf,
-      resultsDf,
+    tcdResultsDf = pd.merge(
+      tcdFileDf,
+      tcdResultsDf,
       'outer',
-      fileDf.keys().tolist()
+      tcdFileDf.keys().tolist()
     ).sort_values(by=[TIME_COLUMN])
 
-    # Save csv table in output folder, using the input directory template
-    os.makedirs(f'output/{experiment}/', exist_ok=True)
-    resultsDf.to_csv(f'output/{experiment}/{os.path.basename(file)}', index=False)
-    print(f'File saved to output/{experiment}/{os.path.basename(file)}\n')
+    # FID data file
+    print('Avaliable files:')
+    print('; '.join(
+      [f'[{i+1}] {os.path.basename(f)}' for i, f in enumerate(inputFiles)]
+    ))
+    while True:
+      try:
+        fileNum = int(input(f'Select file for FID analysis of sample {num+1} of {experiment}: '))
+        assert fileNum > 0 and fileNum <= len(inputFiles)
+        break
+      except (ValueError, AssertionError):
+        print('Error: invalid file number. Try again.')
     
-    # Fill empty values of resultsDf
-    resultsDf[['RRF']] = resultsDf[['RRF']].fillna(value=1)
-    resultsDf[['Classification']] = resultsDf[['Classification']].fillna(value='unidentified')
-    
-    # Normalized Area and Mass of each compound
-    resultsDf['NormalizedArea'] = resultsDf['Area'] / resultsDf['RRF']
-    resultsDf['Mass'] = resultsDf['NormalizedArea'] * isMass / isArea
+    # Internal variables for processing
+    fidFileDf = pd.read_csv(inputFiles[fileNum-1]).sort_values(by=[TIME_COLUMN])
+    fidInputDf = fidFileDf.copy()
+    fidResultsDf = pd.DataFrame()
 
-    # Summary
-    thisSummaryDf = resultsDf.groupby('Classification')[['Mass']].sum()
-    thisSummaryDf = thisSummaryDf.append(pd.Series(data={
-      'Mass': sampleMass - resultsDf[['Mass']].sum().squeeze() + isMass
-    }, name='unaccounted'))
-    thisSummaryDf = thisSummaryDf.append(pd.Series(data={
-      'Mass': sampleMass
-    }, name='sample'))
+    # Database choice
+    print('Available databases:')
+    print('; '.join(
+      [f'[{i+1}] {os.path.basename(database)}' for i, database in enumerate(fidDatabases)]
+    ))
+    try:
+      databaseNum = int(input('Database number (default=1): '))
+      assert databaseNum > 0 and databaseNum <= len(fidDatabases)
+    except (ValueError, AssertionError):
+      print(f'Warning: invalid number, [1] {os.path.basename(fidDatabases[0])} will be used.')
+      databaseNum = 1
+    fidDatabase = pd.read_csv(fidDatabases[databaseNum-1])
 
-    # Identify this summary section
-    thisSummaryDf = thisSummaryDf.rename(columns={
-      'Mass': f'Mass_{num+1}'
-    })
+    # FID Analysis
+    for _, dbRow in fidDatabase.iterrows(): 
+      # Find closest row in filteredDf to dbRow[TIME_COLUMN]
+      rowResult = fidInputDf.iloc[(fidInputDf[TIME_COLUMN]-dbRow[TIME_COLUMN]).abs().argsort()[:1]]
+      fidResultsDf = fidResultsDf.append(
+        pd.concat([dbRow.drop([TIME_COLUMN]), rowResult.squeeze()]), ignore_index=True
+      )
+      # Filter out found compounds in fidInputDf
+      fidInputDf = fidInputDf[(fidInputDf[TIME_COLUMN].isin(fidResultsDf[TIME_COLUMN]) == False)]
 
-    # Merge this summary with other triplicates
-    summaryDf = thisSummaryDf if summaryDf.empty else pd.merge(
-      summaryDf,
-      thisSummaryDf,
+    # Merge results with input file, so unclassified compounds are still present in output
+    fidResultsDf = pd.merge(
+      fidFileDf,
+      fidResultsDf,
       'outer',
-      'Classification'
-    )
+      fidFileDf.keys().tolist()
+    ).sort_values(by=[TIME_COLUMN])
+    
+    tcdResultsDf.to_csv('tcdresult.csv') # Temporary files
+    fidResultsDf.to_csv('fidresult.csv') # Temporary files
+
+    # TODO: summary of analysis
 
   summaryDf.to_csv(f'output/{experiment}_summary.csv')
   print(f'Summary saved to output/{experiment}_summary.csv')
