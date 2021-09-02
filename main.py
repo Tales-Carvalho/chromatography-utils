@@ -42,7 +42,7 @@ def gas_analysis(experiment):
         break
       except (ValueError, AssertionError):
         print('Error: invalid file number. Try again.')
-    
+
     if fileNum == 0:
       break
 
@@ -114,7 +114,7 @@ def gas_analysis(experiment):
       fidResultsDf = fidResultsDf.append(
         pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])]), ignore_index=True
       )
-    
+
     # Get from the user: mass of sample and volume of sample
     while True:
       try:
@@ -131,10 +131,10 @@ def gas_analysis(experiment):
       except (ValueError, AssertionError):
         print('Error: invalid value. Try again.')
 
+    # Volume and Mass of each compound
     fidResultsDf['Volume'] = fidResultsDf['Area'] / fidResultsDf['Response Factor']
     fidResultsDf['Volume in Sample'] = fidResultsDf['Volume'] * sampleVol / 5
     fidResultsDf['Mass'] = fidResultsDf['Volume in Sample'] * fidResultsDf['Density']
-
     tcdResultsDf['Volume'] = tcdResultsDf['Area'] / tcdResultsDf['Response Factor']
     tcdResultsDf['Volume in Sample'] = tcdResultsDf['Volume'] * sampleVol / 5
     tcdResultsDf['Mass'] = tcdResultsDf['Volume in Sample'] * tcdResultsDf['Density']
@@ -145,6 +145,21 @@ def gas_analysis(experiment):
     fidResultsDf.to_csv(f'output/{experiment}/{os.path.basename(fidFileName)}', index=False)
     print(f'File saved to output/{experiment}/{os.path.basename(tcdFileName)}')
     print(f'File saved to output/{experiment}/{os.path.basename(fidFileName)}')
+
+    # Isolate specific compound
+    compoundsToIsolate = ['None', 'Nitrogen', 'Isobutylene', '1-Butene', '1,3-Butadiene', 'Butane', 'Isobutane']
+    print('Isolate specific compound in analysis?')
+    print('; '.join([f'[{i}] {c}' for i, c in enumerate(compoundsToIsolate)]))
+    try:
+      compoundNum = int(input('Compound number (default=0): '))
+      assert compoundNum >= 0 and compoundNum < len(compoundsToIsolate)
+    except (ValueError, AssertionError):
+      print('Warning: invalid value. [0] None will be considered.')
+      compoundNum = 0
+    
+    if compoundNum != 0:
+      tcdResultsDf.loc[tcdResultsDf['Compound'] == compoundsToIsolate[compoundNum], 'Classification'] = compoundsToIsolate[compoundNum]
+      fidResultsDf.loc[fidResultsDf['Compound'] == compoundsToIsolate[compoundNum], 'Classification'] = compoundsToIsolate[compoundNum]
 
     # Merge results to a single table
     thisSummaryDf = pd.merge(
