@@ -30,7 +30,6 @@ def gas_analysis(experiment):
     raise Exception('No database found in data/fid folder.')
 
   for num in range(3):
-
     # TCD data file
     print('Avaliable files:')
     print('; '.join(
@@ -38,14 +37,18 @@ def gas_analysis(experiment):
     ))
     while True:
       try:
-        fileNum = int(input(f'Select file for TCD analysis of sample {num+1} of {experiment}: '))
-        assert fileNum > 0 and fileNum <= len(inputFiles)
+        fileNum = int(input(f'Select file for TCD analysis of sample {num+1} of {experiment} (type 0 to end analysis of this experiment): '))
+        assert fileNum >= 0 and fileNum <= len(inputFiles)
         break
       except (ValueError, AssertionError):
         print('Error: invalid file number. Try again.')
     
+    if fileNum == 0:
+      break
+
     # Internal variables for processing
-    tcdFileDf = pd.read_csv(inputFiles[fileNum-1]).sort_values(by=[TIME_COLUMN])
+    tcdFileName = inputFiles[fileNum-1]
+    tcdFileDf = pd.read_csv(tcdFileName).sort_values(by=[TIME_COLUMN])
     tcdInputDf = tcdFileDf.copy()
     tcdResultsDf = pd.DataFrame()
 
@@ -71,14 +74,11 @@ def gas_analysis(experiment):
       )
       # Filter out found compounds in tcdDatabase
       tcdDatabase = tcdDatabase[(tcdDatabase[TIME_COLUMN].isin(tcdResultsDf[TIME_COLUMN]) == False)]
-
-    # Merge results with input file, so unclassified compounds are still present in output
-    tcdResultsDf = pd.merge(
-      tcdFileDf,
-      tcdResultsDf,
-      'outer',
-      tcdFileDf.keys().tolist()
-    ).sort_values(by=[TIME_COLUMN])
+    
+    # Save csv table in output folder, using the input directory template
+    os.makedirs(f'output/{experiment}/', exist_ok=True)
+    tcdResultsDf.to_csv(f'output/{experiment}/{os.path.basename(tcdFileName)}', index=False)
+    print(f'File saved to output/{experiment}/{os.path.basename(tcdFileName)}\n')
 
     # FID data file
     print('Avaliable files:')
@@ -94,7 +94,8 @@ def gas_analysis(experiment):
         print('Error: invalid file number. Try again.')
     
     # Internal variables for processing
-    fidFileDf = pd.read_csv(inputFiles[fileNum-1]).sort_values(by=[TIME_COLUMN])
+    fidFileName = inputFiles[fileNum-1]
+    fidFileDf = pd.read_csv(fidFileName).sort_values(by=[TIME_COLUMN])
     fidInputDf = fidFileDf.copy()
     fidResultsDf = pd.DataFrame()
 
@@ -118,17 +119,10 @@ def gas_analysis(experiment):
       fidResultsDf = fidResultsDf.append(
         pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])]), ignore_index=True
       )
-
-    # Merge results with input file, so unclassified compounds are still present in output
-    fidResultsDf = pd.merge(
-      fidFileDf,
-      fidResultsDf,
-      'outer',
-      fidFileDf.keys().tolist()
-    ).sort_values(by=[TIME_COLUMN])
     
-    tcdResultsDf.to_csv('tcdresult.csv') # Temporary files
-    fidResultsDf.to_csv('fidresult.csv') # Temporary files
+    # Save csv table in output folder, using the input directory template
+    fidResultsDf.to_csv(f'output/{experiment}/{os.path.basename(fidFileName)}', index=False)
+    print(f'File saved to output/{experiment}/{os.path.basename(fidFileName)}\n')
 
     # TODO: summary of analysis
 
