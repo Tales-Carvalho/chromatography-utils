@@ -64,7 +64,7 @@ def gas_analysis(experiment):
 
     # TCD Analysis
     for _, inputRow in tcdInputDf.iterrows():
-      # Find closest row in tcdInputDf to dbRow[TIME_COLUMN]
+      # Find closest row in tcdDatabase to inputRow[TIME_COLUMN]
       rowResult = tcdDatabase.iloc[(tcdDatabase[TIME_COLUMN]-inputRow[TIME_COLUMN]).abs().argsort()[:1]]
       tcdResultsDf = tcdResultsDf.append(
         pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])]), ignore_index=True
@@ -112,14 +112,12 @@ def gas_analysis(experiment):
     fidDatabase = pd.read_csv(fidDatabases[databaseNum-1])
 
     # FID Analysis
-    for _, dbRow in fidDatabase.iterrows(): 
-      # Find closest row in filteredDf to dbRow[TIME_COLUMN]
-      rowResult = fidInputDf.iloc[(fidInputDf[TIME_COLUMN]-dbRow[TIME_COLUMN]).abs().argsort()[:1]]
+    for _, inputRow in fidInputDf.iterrows():
+      # Find closest row in fidDatabase to inputRow[TIME_COLUMN]
+      rowResult = fidDatabase.iloc[(fidDatabase[TIME_COLUMN]-inputRow[TIME_COLUMN]).abs().argsort()[:1]]
       fidResultsDf = fidResultsDf.append(
-        pd.concat([dbRow.drop([TIME_COLUMN]), rowResult.squeeze()]), ignore_index=True
+        pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])]), ignore_index=True
       )
-      # Filter out found compounds in fidInputDf
-      fidInputDf = fidInputDf[(fidInputDf[TIME_COLUMN].isin(fidResultsDf[TIME_COLUMN]) == False)]
 
     # Merge results with input file, so unclassified compounds are still present in output
     fidResultsDf = pd.merge(
