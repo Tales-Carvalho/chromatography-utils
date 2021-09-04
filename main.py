@@ -18,7 +18,7 @@ PEAK_COLUMN = 'Area' # Column used for peak detection, must only be present in i
 
 
 def gas_analysis(experiment):
-  inputFiles = sorted(glob.glob(f'input/{experiment}/*.csv'))
+  inputFiles = sorted(glob.glob(f'input/{experiment}/*.TX0'))
   summaryDf = pd.DataFrame()
 
   tcdDatabases = sorted(glob.glob('data/tcd/*.csv'))
@@ -48,7 +48,11 @@ def gas_analysis(experiment):
 
     # Internal variables for processing
     tcdFileName = inputFiles[fileNum-1]
-    tcdFileDf = pd.read_csv(tcdFileName).sort_values(by=[TIME_COLUMN])
+    tcdFileDf = pd.read_csv(
+      tcdFileName, encoding='latin1', skiprows=15, header=None,
+      names=[TIME_COLUMN, PEAK_COLUMN], usecols=[1,2]
+    )
+    tcdFileDf = tcdFileDf.apply(pd.to_numeric, errors='coerce').dropna().sort_values(by=[TIME_COLUMN])
     tcdInputDf = tcdFileDf.copy()
     tcdResultsDf = pd.DataFrame()
 
@@ -90,7 +94,11 @@ def gas_analysis(experiment):
     
     # Internal variables for processing
     fidFileName = inputFiles[fileNum-1]
-    fidFileDf = pd.read_csv(fidFileName).sort_values(by=[TIME_COLUMN])
+    fidFileDf = pd.read_csv(
+      fidFileName, encoding='latin1', skiprows=15, header=None,
+      names=[TIME_COLUMN, PEAK_COLUMN], usecols=[1,2]
+    )
+    fidFileDf = fidFileDf.apply(pd.to_numeric, errors='coerce').dropna().sort_values(by=[TIME_COLUMN])
     fidInputDf = fidFileDf.copy()
     fidResultsDf = pd.DataFrame()
 
@@ -141,10 +149,10 @@ def gas_analysis(experiment):
 
     # Save csv table in output folder, using the input directory template
     os.makedirs(f'output/{experiment}/', exist_ok=True)
-    tcdResultsDf.to_csv(f'output/{experiment}/{os.path.basename(tcdFileName)}', index=False)
-    fidResultsDf.to_csv(f'output/{experiment}/{os.path.basename(fidFileName)}', index=False)
-    print(f'File saved to output/{experiment}/{os.path.basename(tcdFileName)}')
-    print(f'File saved to output/{experiment}/{os.path.basename(fidFileName)}')
+    tcdResultsDf.to_csv(f'output/{experiment}/{os.path.basename(tcdFileName).replace(".TX0", ".csv")}', index=False)
+    fidResultsDf.to_csv(f'output/{experiment}/{os.path.basename(fidFileName).replace(".TX0", ".csv")}', index=False)
+    print(f'File saved to output/{experiment}/{os.path.basename(tcdFileName).replace(".TX0", ".csv")}')
+    print(f'File saved to output/{experiment}/{os.path.basename(fidFileName).replace(".TX0", ".csv")}')
 
     # Isolate specific compound
     compoundsToIsolate = ['None', 'Nitrogen', 'Isobutylene', '1-Butene', '1,3-Butadiene', 'Butane', 'Isobutane']
@@ -310,7 +318,7 @@ def entrypoint():
 
   for experiment in experiments:
     # Find all csv files in experiment directory
-    inputFiles = sorted(glob.glob(f'input/{experiment}/*.csv'))
+    inputFiles = sorted(glob.glob(f'input/{experiment}/*.*'))
     if os.path.exists(f'output/{experiment}_summary.csv'):
       print(f'\nOutput for {experiment} already exists. Skipping.')
       continue
