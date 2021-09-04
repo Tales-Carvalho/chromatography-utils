@@ -3,7 +3,7 @@
 # Project metadata
 PROJECT = dict(
   name = 'chromatography-utils',
-  version = '0.3.0',
+  version = '0.3.1',
   description = 'Utility for chromatography analysis written in Python',
   authors = ['Tales Carvalho <taleshen@ualberta.ca>'],
   readme = 'README.md'
