@@ -43,7 +43,7 @@ def liquid_plot(experiment):
     plt.legend()
 
   plt.title(experiment)
-  plt.savefig('tmp.png')
+  plt.savefig(f'output/{experiment}_plot.png')
   plt.show()
 
 
