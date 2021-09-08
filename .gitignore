@@ -1,4 +1,4 @@
 __pycache__
 env
-original-data
 output/**/*.csv
+output/**/*.png
