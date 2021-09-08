@@ -184,8 +184,8 @@ def gas_analysis(experiment):
       'Classification'
     )
 
-  summaryDf.to_csv(f'output/{experiment}_summary.csv')
-  print(f'Summary saved to output/{experiment}_summary.csv')
+  summaryDf.to_excel(f'output/{experiment}_summary.xlsx')
+  print(f'Summary saved to output/{experiment}_summary.xlsx')
 
 
 def liquid_analysis(experiment):
@@ -293,5 +293,5 @@ def liquid_analysis(experiment):
       'Classification'
     )
 
-  summaryDf.to_csv(f'output/{experiment}_summary.csv')
-  print(f'Summary saved to output/{experiment}_summary.csv')
+  summaryDf.to_excel(f'output/{experiment}_summary.xlsx')
+  print(f'Summary saved to output/{experiment}_summary.xlsx')

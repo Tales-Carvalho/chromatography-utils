@@ -35,7 +35,7 @@ def entrypoint():
     for experiment in experiments:
       print(f'\nExecuting peak analysis function for {experiment}.')
       skip = 'n'
-      if os.path.exists(f'output/{experiment}_summary.csv'):
+      if os.path.exists(f'output/{experiment}_summary.xlsx'):
         skip = 'y'
         skip = input(f'\nOutput for {experiment} already exists. Skip? [Y,n] ')
       if skip == 'n' or skip == 'N':
