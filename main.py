@@ -47,10 +47,14 @@ def entrypoint():
           print('Warning: invalid number, (1) liquid will be used.')
           expType = 1
 
-        if expType == 1:
-          analysis.liquid_analysis(experiment)
-        else:
-          analysis.gas_analysis(experiment)
+        try:
+          if expType == 1:
+            analysis.liquid_analysis(experiment)
+          else:
+            analysis.gas_analysis(experiment)
+        except Exception as e:
+          print('Error:', e)
+          print('Skipping to next experiment.')
       else:
         print('Skipping.')
 
@@ -70,10 +74,14 @@ def entrypoint():
           print('Warning: invalid number, (1) liquid will be used.')
           expType = 1
 
-        if expType == 1:
-          plot.liquid_plot(experiment)
-        else:
-          plot.gas_plot(experiment)
+        try:
+          if expType == 1:
+            plot.liquid_plot(experiment)
+          else:
+            plot.gas_plot(experiment)
+        except Exception as e:
+          print('Error:', e)
+          print('Skipping to next experiment.')
       else:
         print('Skipping.')
 
