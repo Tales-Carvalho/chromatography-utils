@@ -171,6 +171,11 @@ def gas_analysis(experiment):
       'Mass': sampleMass - thisSummaryDf[['Mass']].sum().squeeze()
     }, name='Unaccounted'))
 
+    # Append sample row 
+    thisSummaryDf = thisSummaryDf.append(pd.Series(data={
+      'Mass': sampleMass
+    }, name='Sample'))
+
     # Identify this summary section
     thisSummaryDf = thisSummaryDf.rename(columns={
       'Mass': f'Mass_{num+1}'
