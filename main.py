@@ -18,7 +18,7 @@ import plot
 def entrypoint():
 
   # Get experiments subfolders from input folder
-  experiments = sorted([p.split('/')[1] for p in glob.glob('input/*/')])  
+  experiments = sorted([p.split(os.sep)[1] for p in glob.glob(os.path.join('input', '*'))])  
   if len(experiments) == 0:
     raise Exception('No experiment found in input folder.')
   print(f'Found {len(experiments)} experiment folders: {"; ".join(experiments)}')
@@ -35,7 +35,7 @@ def entrypoint():
     for experiment in experiments:
       print(f'\nExecuting peak analysis function for {experiment}.')
       skip = 'n'
-      if os.path.exists(f'output/{experiment}_summary.xlsx'):
+      if os.path.exists(os.path.join('output', f'{experiment}_summary.xlsx')):
         skip = 'y'
         skip = input(f'\nOutput for {experiment} already exists. Skip? [Y,n] ')
       if skip == 'n' or skip == 'N':
@@ -62,7 +62,7 @@ def entrypoint():
     for experiment in experiments:
       print(f'\nExecuting plot function for {experiment}.')
       skip = 'n'
-      if os.path.exists(f'output/{experiment}_plot.png') or os.path.exists(f'output/{experiment}_TCD_plot.png'):
+      if os.path.exists(os.path.join('output', f'{experiment}_plot.png')) or os.path.exists(os.path.join('output', f'{experiment}_TCD_plot.png')):
         skip = 'y'
         skip = input(f'\nOutput for {experiment} already exists. Skip? [Y,n] ')
       if skip == 'n' or skip == 'N':

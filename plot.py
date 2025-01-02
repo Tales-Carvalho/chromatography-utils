@@ -31,7 +31,10 @@ def readRaxFile(raxFile, gas=False):
 
 
 def liquid_plot(experiment):
-  raxFiles = sorted(glob.glob(f'input/{experiment}/*.RAX'))
+  raxFiles = sorted(glob.glob(os.path.join('input', experiment, '*.RAX')))
+
+  if len(raxFiles) == 0:
+    raise Exception(f'No RAX files found in folder {experiment}. Skipping experiment.')
   
   series = []
 
@@ -51,7 +54,7 @@ def liquid_plot(experiment):
     plt.legend()
 
   plt.title(experiment)
-  plt.savefig(f'output/{experiment}_plot.png')
+  plt.savefig(os.path.join('output', f'{experiment}_plot.png'))
 
   print(f'Plot saved to output/{experiment}_plot.png.')
   print('Close the figure window to continue the program.')
@@ -60,7 +63,10 @@ def liquid_plot(experiment):
 
 
 def gas_plot(experiment):
-  raxFiles = sorted(glob.glob(f'input/{experiment}/*.RAX'))
+  raxFiles = sorted(glob.glob(os.path.join('input', experiment, '*.RAX')))
+
+  if len(raxFiles) == 0:
+    raise Exception(f'No RAX files found in folder {experiment}. Skipping experiment.')
   
   tcdSeries = []
   fidSeries = []
@@ -118,7 +124,7 @@ def gas_plot(experiment):
 
   plt.title(f'{experiment}_FID')
 
-  plt.savefig(f'output/{experiment}_plot.png')
+  plt.savefig(os.path.join('output', f'{experiment}_plot.png'))
   print(f'Plot saved to output/{experiment}_plot.png.')
   print('Close the figure window to continue the program.')
 

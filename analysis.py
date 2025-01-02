@@ -7,14 +7,14 @@ PEAK_COLUMN = 'Area' # Column used for peak detection, must only be present in i
 
 
 def gas_analysis(experiment):
-  inputFiles = sorted(glob.glob(f'input/{experiment}/*.TX0'))
+  inputFiles = sorted(glob.glob(os.path.join('input', experiment, '*.TX0')))
   summaryDf = pd.DataFrame()
 
-  tcdDatabases = sorted(glob.glob('data/tcd/*.csv'))
+  tcdDatabases = sorted(glob.glob(os.path.join('data', 'tcd', '*.csv')))
   if len(tcdDatabases) == 0:
     raise Exception('No database found in data/tcd folder.')
 
-  fidDatabases = sorted(glob.glob('data/fid/*.csv'))
+  fidDatabases = sorted(glob.glob(os.path.join('data', 'fid', '*.csv')))
   if len(fidDatabases) == 0:
     raise Exception('No database found in data/fid folder.')
 
@@ -137,9 +137,9 @@ def gas_analysis(experiment):
     tcdResultsDf['Mass'] = tcdResultsDf['Volume in Sample'] * tcdResultsDf['Density']
 
     # Save csv table in output folder, using the input directory template
-    os.makedirs(f'output/{experiment}/', exist_ok=True)
-    tcdResultsDf.to_csv(f'output/{experiment}/{os.path.basename(tcdFileName).replace(".TX0", ".csv")}', index=False)
-    fidResultsDf.to_csv(f'output/{experiment}/{os.path.basename(fidFileName).replace(".TX0", ".csv")}', index=False)
+    os.makedirs(os.path.join('output', experiment), exist_ok=True)
+    tcdResultsDf.to_csv(os.path.join('output', experiment, os.path.basename(tcdFileName).replace(".TX0", ".csv")), index=False)
+    fidResultsDf.to_csv(os.path.join('output', experiment, os.path.basename(fidFileName).replace(".TX0", ".csv")), index=False)
     print(f'File saved to output/{experiment}/{os.path.basename(tcdFileName).replace(".TX0", ".csv")}')
     print(f'File saved to output/{experiment}/{os.path.basename(fidFileName).replace(".TX0", ".csv")}')
 
@@ -189,15 +189,15 @@ def gas_analysis(experiment):
       'Classification'
     )
 
-  summaryDf.to_excel(f'output/{experiment}_summary.xlsx')
+  summaryDf.to_excel(os.path.join('output', f'{experiment}_summary.xlsx'))
   print(f'Summary saved to output/{experiment}_summary.xlsx')
 
 
 def liquid_analysis(experiment):
-  inputFiles = sorted(glob.glob(f'input/{experiment}/*.csv'))
+  inputFiles = sorted(glob.glob(os.path.join('input', experiment, '*.csv')))
   summaryDf = pd.DataFrame()
 
-  databases = sorted(glob.glob('data/liquid/*.csv'))
+  databases = sorted(glob.glob(os.path.join('data', 'liquid', '*.csv')))
   if len(databases) == 0:
     raise Exception('No database found in data/liquid folder.')
 
@@ -264,8 +264,8 @@ def liquid_analysis(experiment):
     ).sort_values(by=[TIME_COLUMN])
 
     # Save csv table in output folder, using the input directory template
-    os.makedirs(f'output/{experiment}/', exist_ok=True)
-    resultsDf.to_csv(f'output/{experiment}/{os.path.basename(file)}', index=False)
+    os.makedirs(os.path.join('output', experiment), exist_ok=True)
+    resultsDf.to_csv(os.path.join('output', experiment, os.path.basename(file)), index=False)
     print(f'File saved to output/{experiment}/{os.path.basename(file)}\n')
     
     # Fill empty values of resultsDf
@@ -298,5 +298,5 @@ def liquid_analysis(experiment):
       'Classification'
     )
 
-  summaryDf.to_excel(f'output/{experiment}_summary.xlsx')
+  summaryDf.to_excel(os.path.join('output', f'{experiment}_summary.xlsx'))
   print(f'Summary saved to output/{experiment}_summary.xlsx')
