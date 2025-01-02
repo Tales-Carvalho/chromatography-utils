@@ -62,9 +62,8 @@ def gas_analysis(experiment):
     for _, inputRow in tcdInputDf.iterrows():
       # Find closest row in tcdDatabase to inputRow[TIME_COLUMN]
       rowResult = tcdDatabase.iloc[(tcdDatabase[TIME_COLUMN]-inputRow[TIME_COLUMN]).abs().argsort()[:1]]
-      tcdResultsDf = tcdResultsDf.append(
-        pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])]), ignore_index=True
-      )
+      newResults = pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])])
+      tcdResultsDf = pd.concat([tcdResultsDf, newResults.to_frame().T], ignore_index=True)
       # Filter out found compounds in tcdDatabase
       tcdDatabase = tcdDatabase[(tcdDatabase[TIME_COLUMN].isin(tcdResultsDf[TIME_COLUMN]) == False)]
 
@@ -108,9 +107,8 @@ def gas_analysis(experiment):
     for _, inputRow in fidInputDf.iterrows():
       # Find closest row in fidDatabase to inputRow[TIME_COLUMN]
       rowResult = fidDatabase.iloc[(fidDatabase[TIME_COLUMN]-inputRow[TIME_COLUMN]).abs().argsort()[:1]]
-      fidResultsDf = fidResultsDf.append(
-        pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])]), ignore_index=True
-      )
+      newResults = pd.concat([inputRow, rowResult.squeeze().drop([TIME_COLUMN])])
+      fidResultsDf = pd.concat([fidResultsDf, newResults.to_frame().T], ignore_index=True)
 
     # Get from the user: mass of sample and volume of sample
     while True:
@@ -167,14 +165,16 @@ def gas_analysis(experiment):
     )
 
     # Append unaccounted row 
-    thisSummaryDf = thisSummaryDf.append(pd.Series(data={
+    unaccountedRow = pd.Series(data={
       'Mass': sampleMass - thisSummaryDf[['Mass']].sum().squeeze()
-    }, name='Unaccounted'))
+    }, name='Unaccounted')
+    thisSummaryDf = pd.concat([thisSummaryDf, unaccountedRow.to_frame().T])
 
     # Append sample row 
-    thisSummaryDf = thisSummaryDf.append(pd.Series(data={
+    sampleRow = pd.Series(data={
       'Mass': sampleMass
-    }, name='Sample'))
+    }, name='Sample')
+    thisSummaryDf = pd.concat([thisSummaryDf, sampleRow.to_frame().T])
 
     # Identify this summary section
     thisSummaryDf = thisSummaryDf.rename(columns={
@@ -182,12 +182,7 @@ def gas_analysis(experiment):
     })
 
     # Merge this summary with other triplicates
-    summaryDf = thisSummaryDf if summaryDf.empty else pd.merge(
-      summaryDf,
-      thisSummaryDf,
-      'outer',
-      'Classification'
-    )
+    summaryDf = pd.concat([summaryDf, thisSummaryDf], axis=1)
 
   summaryDf.to_excel(os.path.join('output', f'{experiment}_summary.xlsx'))
   print(f'Summary saved to output/{experiment}_summary.xlsx')
@@ -230,9 +225,8 @@ def liquid_analysis(experiment):
       ]
       # Find closest row in filteredDf to dbRow[TIME_COLUMN]
       rowResult = filteredDf.iloc[(filteredDf[TIME_COLUMN]-dbRow[TIME_COLUMN]).abs().argsort()[:1]]
-      resultsDf = resultsDf.append(
-        pd.concat([dbRow.drop([TIME_COLUMN]), rowResult.squeeze()]), ignore_index=True
-      )
+      newResults = pd.concat([dbRow, rowResult.squeeze().drop([TIME_COLUMN])])
+      resultsDf = pd.concat([resultsDf, newResults.to_frame().T], ignore_index=True)
       # Filter out found compounds in inputDf
       inputDf = inputDf[(inputDf[TIME_COLUMN].isin(resultsDf[TIME_COLUMN]) == False)]
 
@@ -278,12 +272,15 @@ def liquid_analysis(experiment):
 
     # Summary
     thisSummaryDf = resultsDf.groupby('Classification')[['Mass']].sum()
-    thisSummaryDf = thisSummaryDf.append(pd.Series(data={
-      'Mass': sampleMass - resultsDf[['Mass']].sum().squeeze() + isMass
-    }, name='unaccounted'))
-    thisSummaryDf = thisSummaryDf.append(pd.Series(data={
+    unaccountedRow = pd.Series(data={
+      'Mass': sampleMass - thisSummaryDf[['Mass']].sum().squeeze() + isMass
+    }, name='unaccounted')
+    thisSummaryDf = pd.concat([thisSummaryDf, unaccountedRow.to_frame().T])
+
+    sampleRow = pd.Series(data={
       'Mass': sampleMass
-    }, name='sample'))
+    }, name='Sample')
+    thisSummaryDf = pd.concat([thisSummaryDf, sampleRow.to_frame().T])
 
     # Identify this summary section
     thisSummaryDf = thisSummaryDf.rename(columns={
@@ -291,12 +288,7 @@ def liquid_analysis(experiment):
     })
 
     # Merge this summary with other triplicates
-    summaryDf = thisSummaryDf if summaryDf.empty else pd.merge(
-      summaryDf,
-      thisSummaryDf,
-      'outer',
-      'Classification'
-    )
+    summaryDf = pd.concat([summaryDf, thisSummaryDf], axis=1)
 
   summaryDf.to_excel(os.path.join('output', f'{experiment}_summary.xlsx'))
   print(f'Summary saved to output/{experiment}_summary.xlsx')
